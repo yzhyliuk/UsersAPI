@@ -11,13 +11,6 @@ type generalDataAccessObject struct {
 	db *gorm.DB
 }
 
-//NewGeneralDataService : Returns new Service Interface with datasource
-func NewGeneralDataService(datasource *gorm.DB) DataAccessObject {
-	return &generalDataAccessObject{
-		db: datasource,
-	}
-}
-
 //AddDataSource : adds data source for given service
 
 //Create : creates a new entry of row in db
@@ -47,9 +40,27 @@ func (s *generalDataAccessObject) Update(obj interface{}) *errors.APIError {
 	return nil
 }
 
+//UpdateWhere : updates all objects matchig parameters
+func (s *generalDataAccessObject) UpdateWhere(obj interface{}, params interface{}) *errors.APIError {
+	result := s.db.Model(obj).Where(params).Updates(obj)
+	if result.Error != nil {
+		return errors.NewInternalServerError(result.Error.Error())
+	}
+	return nil
+}
+
 //Delete : deletes first entry of object with given primary key
 func (s *generalDataAccessObject) Delete(obj interface{}, primaryKey int) *errors.APIError {
 	result := s.db.Delete(obj, primaryKey)
+	if result.Error != nil {
+		return errors.NewInternalServerError(result.Error.Error())
+	}
+	return nil
+}
+
+//DeleteWhere : deletes first entry of object with given primary key
+func (s *generalDataAccessObject) DeleteWhere(obj interface{}, params interface{}) *errors.APIError {
+	result := s.db.Model(obj).Where(params).Delete(obj)
 	if result.Error != nil {
 		return errors.NewInternalServerError(result.Error.Error())
 	}

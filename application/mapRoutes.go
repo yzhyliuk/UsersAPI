@@ -1,10 +1,21 @@
 package application
 
-func (w *webApp) mapRoutes() {
-	w.webRouter.GET("/users/:id", w.UserService.Recive)
-	w.webRouter.GET("/users", w.UserService.List)
-	w.webRouter.GET("/user/find/", w.UserService.FindAll)
-	w.webRouter.POST("/users", w.UserService.Create)
-	w.webRouter.PUT("/users/:id", w.UserService.Update)
-	w.webRouter.DELETE("/users/:id", w.UserService.Delete)
+import (
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+func (app *defaultApp) mapRoutes() {
+	app.Router.GET("/users/:id", app.Service.Recive)
+	app.Router.GET("/users", app.Service.FindAll)
+	app.Router.POST("/users", app.Service.Create)
+	app.Router.PUT("/users/:id", app.Service.Update)
+	app.Router.PUT("/users", app.Service.UpdateWhere)
+	app.Router.DELETE("/users/:id", app.Service.Delete)
+	app.Router.POST("/login", app.Service.Login)
+
+	//LoadDocumentation - Not implemented
+	app.Router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
+	url := ginSwagger.URL("http://localhost:9090/docs/swagger.json") // The url pointing to API definition
+	app.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 }

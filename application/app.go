@@ -11,14 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type webApp struct {
-	webServer   *http.Server
-	webRouter   *gin.Engine
-	UserService services.Service
+type defaultApp struct {
+	Server  *http.Server
+	Router  *gin.Engine
+	Service services.Service
 }
 
 //NewApp : returns an new App interface with default settings
 func NewApp(conf Config) (App, error) {
+	if err := conf.Validate(); err != nil {
+		return nil, err
+	}
 	//creating new webApp with config
 	app, err := createApp(conf)
 	if err != nil {
@@ -28,12 +31,12 @@ func NewApp(conf Config) (App, error) {
 }
 
 //Start : start function for server
-func (w *webApp) Start() {
+func (app *defaultApp) Start() {
 	go func() {
-		w.webServer.ErrorLog.Printf("Starting server on port %s \n", w.webServer.Addr)
-		err := w.webServer.ListenAndServe()
+		app.Server.ErrorLog.Printf("Starting server on port %s \n", app.Server.Addr)
+		err := app.Server.ListenAndServe()
 		if err != nil {
-			w.webServer.ErrorLog.Printf("Error starting server: %s", err.Error())
+			app.Server.ErrorLog.Printf("Error starting server: %s", err.Error())
 			os.Exit(1)
 		}
 	}()
@@ -45,15 +48,9 @@ func (w *webApp) Start() {
 	//Block next part of code via wating response from channel
 	_ = <-signChan
 	//if recieving one - log command and Gracefully shutDown the Server with Timeout of 30 sec
-	w.webServer.ErrorLog.Printf("Recived terminate command, graceful shutdown in 30 seconds")
+	app.Server.ErrorLog.Printf("Recived terminate command, graceful shutdown in 30 seconds")
 
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	w.webServer.Shutdown(tc)
+	app.Server.Shutdown(tc)
 
-}
-
-func (w *webApp) applyConfiguration(conf Config) {
-	w.webServer = conf.Server
-	w.webServer.Handler = conf.Router
-	w.webRouter = conf.Router
 }

@@ -1,0 +1,10 @@
+basePath: /users
+host: localhost:8080
+info:
+  contact: {}
+  description: This application is microservice for LightERP that provides basic CRUD
+    actions with users of system.
+  title: Lighterp Users API
+  version: 0.1.0
+paths: {}
+swagger: "2.0"

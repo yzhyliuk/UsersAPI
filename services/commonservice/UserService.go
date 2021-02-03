@@ -1,9 +1,10 @@
-package services
+package commonservice
 
 import (
 	"fmt"
 	"ms/usersAPI/data/dao"
 	"ms/usersAPI/data/models"
+	"ms/usersAPI/utils/argon"
 	"ms/usersAPI/utils/errors"
 	"net/http"
 	"strconv"
@@ -11,25 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//userService serves requsts for UsersAPI
+//commonService serves requsts for UsersAPI
 //
 //contains methods as a request handlers for server
-type userService struct {
+type commonService struct {
 	datasource dao.DataAccessObject
 }
 
-//NewUserService : returns userservice with datasource with given credentials
-func NewUserService(dataSource, ConnectionString string) (Service, *errors.APIError) {
-	service := new(userService)
-	err := service.configDataSource(dataSource, ConnectionString)
-	if err != nil {
-		return nil, err
-	}
-	return service, nil
-}
-
 //Revice : recive user from datasource for given primary key
-func (s *userService) Recive(c *gin.Context) {
+func (s *commonService) Recive(c *gin.Context) {
 	//geting primary key as path parameter
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id < 1 {
@@ -50,7 +41,7 @@ func (s *userService) Recive(c *gin.Context) {
 }
 
 //Create : creates new entry of user in datasource
-func (s *userService) Create(c *gin.Context) {
+func (s *commonService) Create(c *gin.Context) {
 	//retrieving user from request body
 	user := new(models.User)
 	err := c.ShouldBindJSON(user)
@@ -65,6 +56,13 @@ func (s *userService) Create(c *gin.Context) {
 		c.JSON(apierror.Status, apierror)
 		return
 	}
+	hash, err := argon.StringEncode(user.Password)
+	if err != nil {
+		apierror := errors.NewInternalServerError(err.Error())
+		c.JSON(apierror.Status, apierror)
+		return
+	}
+	user.Password = hash
 	//request to datasource
 	apierror = s.datasource.Create(user)
 	if apierror != nil {
@@ -75,7 +73,7 @@ func (s *userService) Create(c *gin.Context) {
 	c.String(http.StatusOK, "User successfuly created")
 }
 
-func (s *userService) Update(c *gin.Context) {
+func (s *commonService) Update(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id < 1 {
 		apierror := errors.NewBadRequestError("Invalid path parameter of 'id', should be grater than 0")
@@ -110,7 +108,7 @@ func (s *userService) Update(c *gin.Context) {
 	c.String(http.StatusOK, "User successfully updated")
 }
 
-func (s *userService) Delete(c *gin.Context) {
+func (s *commonService) Delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id < 1 {
 		c.String(http.StatusBadRequest, "Invalid path parameter of 'id', should be grater than 0")
@@ -125,9 +123,46 @@ func (s *userService) Delete(c *gin.Context) {
 	c.String(http.StatusOK, fmt.Sprintf("User with id %d succesfully deleted", id))
 }
 
-func (s *userService) List(c *gin.Context) {
+//UpdateWhere : updates all rows that matches with given parameters
+func (s *commonService) UpdateWhere(c *gin.Context) {
+	user := new(models.User)
+	err := s.parseBody(c, user)
+	if err != nil {
+		return
+	}
+	apierr := user.Validate()
+	if apierr != nil {
+		c.JSON(apierr.Status, apierr)
+		return
+	}
+	//Parse params
+	userParams := new(models.User)
+	apierr = s.queryToStruct(c, userParams)
+	if apierr != nil {
+		c.JSON(apierr.Status, apierr)
+		return
+	}
+	//request to datasource
+	apierror := s.datasource.UpdateWhere(user, userParams)
+	if apierror != nil {
+		c.JSON(apierror.Status, apierror)
+		return
+	}
+
+	c.String(http.StatusOK, "resources successfully updated")
+}
+
+//FindsAll : returns JSON list of all objects that mathes given query parameter
+func (s *commonService) FindAll(c *gin.Context) {
+	//if query parameters aren't set
+	params := new(models.User)
+	apierr := s.queryToStruct(c, params)
+	if apierr != nil {
+		c.JSON(apierr.Status, apierr)
+		return
+	}
 	usersList := new(models.UserList)
-	apierror := s.datasource.List(usersList)
+	apierror := s.datasource.FindAll(usersList, params)
 	if apierror != nil {
 		c.JSON(apierror.Status, apierror)
 		return
@@ -135,19 +170,33 @@ func (s *userService) List(c *gin.Context) {
 	c.JSON(http.StatusOK, usersList.Export())
 }
 
-//FindsAll : returns JSON list of all objects that mathes given query parameter
-func (s *userService) FindAll(c *gin.Context) {
-	userParams := new(models.User)
-	apierr := s.queryToStruct(c, userParams)
+//Login : handler that recives user login credentials and verify them returning access token
+func (s *commonService) Login(c *gin.Context) {
+	user := new(models.User)
+	err := c.BindJSON(user)
+	if err != nil {
+		apierr := errors.NewInternalServerError("Unable to parse user credential from request body")
+		c.JSON(apierr.Status, apierr)
+		return
+	}
+	fmt.Println(user)
+	userCurrent := new(models.User)
+	apierr := s.datasource.FindAll(&userCurrent, models.User{Email: user.Email})
 	if apierr != nil {
 		c.JSON(apierr.Status, apierr)
 		return
 	}
-	usersList := new(models.UserList)
-	apierror := s.datasource.FindAll(usersList, userParams)
-	if apierror != nil {
-		c.JSON(apierror.Status, apierror)
+	if userCurrent.Email == "" {
+		apierr := errors.NewBadRequestError("Incorrect user password or email")
+		c.JSON(apierr.Status, apierr)
 		return
 	}
-	c.JSON(http.StatusOK, usersList.Export())
+
+	ok, _ := argon.CompareStringToHash(user.Password, userCurrent.Password)
+	if ok {
+		c.String(http.StatusOK, "Password Ok!")
+		return
+	}
+	apierr = errors.NewBadRequestError("Incorrect user password or email")
+	c.JSON(apierr.Status, apierr)
 }

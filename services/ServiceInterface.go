@@ -1,8 +1,6 @@
 package services
 
 import (
-	"ms/usersAPI/utils/errors"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,9 +8,9 @@ import (
 type Service interface {
 	Create(c *gin.Context)
 	Recive(c *gin.Context)
-	List(c *gin.Context)
 	FindAll(c *gin.Context)
 	Update(c *gin.Context)
+	UpdateWhere(c *gin.Context)
 	Delete(c *gin.Context)
-	configDataSource(dataSource, ConnectionString string) *errors.APIError
+	Login(c *gin.Context)
 }
