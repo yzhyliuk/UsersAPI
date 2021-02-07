@@ -12,5 +12,6 @@ type Service interface {
 	Update(c *gin.Context)
 	UpdateWhere(c *gin.Context)
 	Delete(c *gin.Context)
+	DeleteWhere(c *gin.Context)
 	Login(c *gin.Context)
 }

@@ -55,6 +55,8 @@ func (s *commonService) queryToStruct(c *gin.Context, obj interface{}) *errors.A
 	}
 	return nil
 }
+
+//parseID : parses id from the context and returns it as integer. Returning -1 if can't converte
 func (s *commonService) parseID(c *gin.Context) int {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id < 1 {
@@ -64,6 +66,8 @@ func (s *commonService) parseID(c *gin.Context) int {
 	}
 	return id
 }
+
+//parseBody : parses body from request
 func (s *commonService) parseBody(c *gin.Context, obj interface{}) error {
 	err := c.ShouldBindJSON(obj)
 	if err != nil {
@@ -72,4 +76,16 @@ func (s *commonService) parseBody(c *gin.Context, obj interface{}) error {
 		return fmt.Errorf("Parsing error")
 	}
 	return nil
+}
+
+func (s *commonService) getCompanyID(c *gin.Context) int {
+	//Setting company borders
+	cid, _ := c.Get("companyid")
+	return int(cid.(float64))
+}
+
+func (s *commonService) getUserID(c *gin.Context) int {
+	//Setting company borders
+	cid, _ := c.Get("userid")
+	return int(cid.(float64))
 }

@@ -16,7 +16,7 @@ type User struct {
 	Password     string `json:"password" validate:"omitempty,min=8"`
 	CompanyID    int    `json:"companyid" validate:"omitempty,gt=0"`
 	DepartmentID int    `json:"departmentid" validate:"omitempty,gt=0"`
-	UserSalt     string
+	Role         string `json:"role"`
 }
 
 //Export convert internal user struct to UserExported omiting privat fields
@@ -28,6 +28,17 @@ func (u *User) Export() *UserExported {
 		Email:        u.Email,
 		CompanyID:    u.CompanyID,
 		DepartmentID: u.DepartmentID,
+		Role:         u.Role,
+	}
+}
+
+//UserData : extract user main data from User struct
+func (u *User) UserData() *UserData {
+	return &UserData{
+		UserID:       u.ID,
+		CompanyID:    u.CompanyID,
+		DepartmentID: u.DepartmentID,
+		Role:         u.Role,
 	}
 }
 

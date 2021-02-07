@@ -9,5 +9,6 @@ type DataAccessObject interface {
 	Update(obj interface{}) *errors.APIError
 	UpdateWhere(obj interface{}, params interface{}) *errors.APIError
 	Delete(obj interface{}, primaryKey int) *errors.APIError
+	DeleteWhere(obj interface{}, params interface{}) *errors.APIError
 	FindAll(obj interface{}, params interface{}) *errors.APIError
 }

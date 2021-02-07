@@ -8,4 +8,5 @@ type UserExported struct {
 	Email        string `json:"email"`
 	CompanyID    int    `json:"companyid"`
 	DepartmentID int    `json:"departmentid"`
+	Role         string `json:"role"`
 }

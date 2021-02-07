@@ -1,4 +1,31 @@
 basePath: /users
+definitions:
+  errors.APIError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  models.UserExported:
+    properties:
+      companyid:
+        type: integer
+      departmentid:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      lastname:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -6,5 +33,167 @@ info:
     actions with users of system.
   title: Lighterp Users API
   version: 0.1.0
-paths: {}
+paths:
+  /users:
+    delete:
+      consumes:
+      - application/json
+      description: deletes all users that matches given parameters
+      operationId: delete-users
+      responses:
+        "200":
+          description: OK
+          headers:
+            string:
+              type: string
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: deletes users
+    post:
+      consumes:
+      - application/json
+      description: create new user
+      operationId: create-new-user
+      responses:
+        "200":
+          description: OK
+          headers:
+            string:
+              type: string
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: creates user
+    put:
+      consumes:
+      - application/json
+      description: updates all users that matches given parameters
+      operationId: update-users
+      responses:
+        "200":
+          description: OK
+          headers:
+            string:
+              type: string
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: updates users
+  /users/{id}:
+    delete:
+      description: deletes user by primary key
+      operationId: delete-user-by-pk
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            string:
+              type: string
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: deletes user
+    put:
+      consumes:
+      - application/json
+      description: update user with given primary key
+      operationId: update-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            string:
+              type: string
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: updates user
 swagger: "2.0"

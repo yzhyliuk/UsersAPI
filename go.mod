@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/spec v0.20.2 // indirect
 	github.com/go-playground/validator/v10 v10.4.1
+	github.com/go-resty/resty/v2 v2.4.0
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/imdario/mergo v0.3.11

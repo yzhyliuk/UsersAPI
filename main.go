@@ -1,27 +1,3 @@
-// Package classification of Users API.
-//
-// This application is microservice for LightERP that provides basic CRUD actions with
-// users of system.
-//
-// Datasource for this app is PostgresSQL database. All communication with database
-// occurs through GORM ORM.
-// Data Access Object implemented in dao pacakge as struct with methods that are
-// executes db transactions. Dao avaliable via DAO interface
-//
-//     Schemes: http, https
-//     Host: localhost
-//     BasePath: /users
-//     Version: 0.1.0
-//
-//     Consumes:
-//     - application/json
-//
-//     Produces:
-//     - application/json
-//
-//     Security:
-//     - api_key: in_development
-// swagger:meta
 package main
 
 import (
@@ -33,6 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+// gin-swagger middleware
+// swagger embed files
 
 func main() {
 	defaultLogger := log.New(os.Stdout, "users-api: ", log.LstdFlags)
